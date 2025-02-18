@@ -1,21 +1,30 @@
-import { TableBarOutlined } from "@mui/icons-material";
-import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { PageContainer, PageHeader, PageHeaderToolbar } from "@toolpad/core";
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowParams } from '@mui/x-data-grid';
+import { useNavigate } from "react-router";
 
-
-function onChangeSemester(){
-
-}
-
-function onChangeYear(){
-
-}
+//icons
+import InfoIcon from '@mui/icons-material/Info';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { MouseEventHandler, ReactNode } from "react";
 
 function CustomToolbar(){
+    const navigate = useNavigate()
+    
+    let selected_semester = ""
+    function onChangeSemester(e:SelectChangeEvent){
+        selected_semester = e.target.value
+    }
+
+    let selected_year = ""
+    function onChangeYear(e:SelectChangeEvent){
+        selected_year = e.target.value
+    }
+    
+    
     return (
         <PageHeaderToolbar>
-                <Button variant="outlined">
+                <Button variant="outlined" onClick={()=>{navigate("/classes/create")}}>
                     Tạo lớp mới
                 </Button>
                 <FormControl sx={{minWidth:120}}>
@@ -24,11 +33,11 @@ function CustomToolbar(){
                         labelId="semester-select-label"
                         id="semester-select"
                         label="Học kỳ"
-                        value="1"
+                        value={selected_semester}
                         onChange={onChangeSemester}
                     >
                         <MenuItem value="">
-                            <em>None</em>
+                            Tất cả
                         </MenuItem>
                         <MenuItem value="1">
                             Học kỳ 1
@@ -47,7 +56,7 @@ function CustomToolbar(){
                     labelId="demo-simple-select-helper-label"
                     id="demo-simple-select-helper"
                     label="Năm học"
-                    value="10"
+                    value={selected_year}
                     onChange={onChangeYear}
                     >
                         <MenuItem value="">
@@ -68,53 +77,98 @@ function CustomHeaderToolbar(){
     )
 }
 
-const columns: GridColDef<(typeof rows)[number]>[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'firstName',
-    headerName: 'First name',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'lastName',
-    headerName: 'Last name',
-    width: 150,
-    editable: true,
-  },
-  {
-    field: 'age',
-    headerName: 'Age',
-    type: 'number',
-    width: 110,
-    editable: true,
-  },
-  {
-    field: 'fullName',
-    headerName: 'Full name',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 160,
-    valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
-  },
-];
-
-const rows = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 14 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 31 },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 31 },
-  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 11 },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-];
-
 export default function ClassesPage(){
+    const navigate = useNavigate()
+    
+    function handleDelete(id:string){
 
-    let selected_year = "2024"
-    let selected_sem = 1
+    }
+
+    const columns: GridColDef<(typeof rows)[number]>[] = [
+        { 
+            field: 'id',
+            headerName: 'ID',
+            type:"string",
+            width: 90 
+        },
+        {
+            field: 'subject_name',
+            headerName: 'Môn học',
+            type:"string",
+            width: 150,
+        },
+        {
+            field: 'class_index',
+            headerName: 'Nhóm lớp',
+            type:"string",
+            width: 150,
+        },
+        {
+            field: 'class_start',
+            headerName: 'Bắt đầu',
+            type:"number",
+            valueFormatter:(timestamp:number)=>{
+                    const formattedTime = new Date(timestamp).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                });
+                return formattedTime
+            },
+            width: 100,
+        },
+        {
+            field: 'class_end',
+            headerName: 'Kết thúc',
+            type:"number",
+            valueFormatter:(timestamp:number)=>{
+                    const formattedTime = new Date(timestamp).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                });
+                return formattedTime
+            },
+            width: 100,
+        },
+        {
+            field: 'semester',
+            headerName: 'HK',
+            type: 'number',
+            width: 60,
+        },
+        {
+            field: 'student_count',
+            headerName: 'SLSV',
+            type: 'number',
+            width: 80,
+        },
+        {
+            field: 'action',
+            headerName: 'Thao tác',
+            sortable: false,
+            width: 160,
+            type: "actions",
+            getActions: (params: GridRowParams) => [
+                <GridActionsCellItem icon={<InfoIcon/>} onClick={()=>{navigate(`/classes/details/${params.row.id}`)}} label="Xem chi tiết"/>,
+                <GridActionsCellItem icon={<DeleteIcon/>} onClick={()=>{handleDelete(params.row.id)}} label="Điểm danh lớp" showInMenu/>,
+                <GridActionsCellItem icon={<DeleteIcon/>} onClick={()=>{handleDelete(params.row.id)}} label="Xóa" showInMenu/>,
+            ]
+        },
+    ];
+    
+
+    const rows = [
+        { id: 1, lastName: 'Snow', firstName: 'Jon', age: 14 },
+        { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 31 },
+        { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 31 },
+        { id: 4, lastName: 'Stark', firstName: 'Arya', age: 11 },
+        { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
+        { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
+        { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
+        { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
+        { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+    ];
 
     return(
         <PageContainer slots={{header:CustomHeaderToolbar}}>

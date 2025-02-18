@@ -36,8 +36,8 @@ function CustomHeaderToolbar(){
     )
 }
 
-export default function CardManagePage(){
-    return (
+export default function ClassDetailPage(){
+    return(
         <PageContainer slots={{header:CustomHeaderToolbar}}>
         
         </PageContainer>

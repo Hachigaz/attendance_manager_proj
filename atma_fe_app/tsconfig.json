@@ -12,9 +12,10 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*"],
+      "Commons/*":["src/commons/*"]
     },
-    "jsx": "react-jsx"
+    "jsx":"react-jsx"
   },
   "include": ["src/**/*"]
 }
